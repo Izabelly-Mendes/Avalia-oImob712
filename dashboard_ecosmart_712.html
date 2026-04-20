@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação — Eco Smart Ecoville — Unidade 712</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --orange: #E85A0F;
+    --orange-light: #F4874A;
+    --black: #1A1A1A;
+    --dark: #2B2B2B;
+    --gray: #F2F2F2;
+    --gray2: #E0E0E0;
+    --gray3: #9A9A9A;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #F5F5F5;
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--black);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: 1px;
+  }
+  .header-logo span { color: var(--orange); }
+  .header-meta {
+    text-align: right;
+    color: var(--gray3);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .header-meta strong { color: var(--white); font-size: 13px; }
+
+  /* BAND */
+  .band {
+    background: var(--orange);
+    padding: 10px 32px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+
+  /* IMOVEL CARD */
+  .imovel-card {
+    background: var(--white);
+    border-radius: 10px;
+    border-left: 5px solid var(--orange);
+    padding: 22px 28px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .ic-item label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+  }
+  .ic-item span {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  /* VALOR CARDS */
+  .valor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .valor-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .valor-card.destaque { border-top: 4px solid var(--orange); }
+  .valor-card.secundario { border-top: 4px solid var(--gray2); }
+  .valor-card .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .valor-card .valor {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .valor-card.destaque .valor { color: var(--orange); }
+  .valor-card.secundario .valor { color: var(--dark); }
+  .valor-card .sub {
+    font-size: 12px;
+    color: var(--gray3);
+    margin-top: 6px;
+  }
+
+  /* SECTION */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--orange);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--orange);
+  }
+
+  /* CHARTS GRID */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .chart-card canvas { max-height: 260px; }
+
+  /* ESTATISTICA ROW */
+  .estat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .estat-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .estat-card .e-label {
+    font-size: 11px;
+    color: var(--gray3);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .estat-card .e-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--dark);
+  }
+  .estat-card .e-unit { font-size: 11px; color: var(--gray3); }
+
+  /* TABELA */
+  .table-card {
+    background: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .table-card .section-title { padding: 18px 22px 0; margin-bottom: 0; border: none; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--black); }
+  thead th {
+    color: var(--white);
+    font-weight: 600;
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+  }
+  thead th:first-child { width: 36px; text-align: center; }
+  tbody tr:nth-child(even) { background: var(--gray); }
+  tbody tr:hover { background: #FFF0E8; }
+  tbody td { padding: 10px 14px; color: var(--dark); }
+  tbody td:first-child { text-align: center; font-weight: 700; color: var(--orange); }
+  .td-valor { text-align: right; font-weight: 600; }
+  .td-vm2 { text-align: right; font-weight: 700; color: var(--orange); }
+  .link-anuncio {
+    color: var(--orange);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .link-anuncio:hover { text-decoration: underline; }
+
+  /* METODOLOGIA */
+  .metod-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .metod-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .metod-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray2);
+    font-size: 13px;
+  }
+  .metod-row:last-child { border-bottom: none; }
+  .metod-row .mr-label { color: var(--gray3); }
+  .metod-row .mr-value { font-weight: 700; color: var(--dark); }
+  .metod-row.destaque .mr-value { color: var(--orange); font-size: 15px; }
+
+  /* FOOTER */
+  .footer {
+    background: var(--black);
+    padding: 18px 32px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--gray3);
+    margin-top: 8px;
+  }
+  .footer strong { color: var(--white); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">DIFERENCIAL<span> ≠</span> IMÓVEIS</div>
+  <div class="header-meta">
+    <strong>Parecer Técnico de Avaliação Mercadológica</strong><br>
+    Método Comparativo Direto · ABNT NBR 14653 · Abril de 2026
+  </div>
+</div>
+<div class="band">Studio — Eco Smart Ecoville — Unidade 712 · Rua Bárbara Cvintal, 280 · Mossunguê · Curitiba/PR</div>
+
+<div class="container">
+
+  <!-- IDENTIFICAÇÃO -->
+  <div class="imovel-card">
+    <div class="ic-item">
+      <label>Empreendimento</label>
+      <span>Eco Smart Ecoville</span>
+    </div>
+    <div class="ic-item">
+      <label>Unidade / Andar</label>
+      <span>712 — 7º andar</span>
+    </div>
+    <div class="ic-item">
+      <label>Área Privativa</label>
+      <span>23,16 m²</span>
+    </div>
+    <div class="ic-item">
+      <label>Tipo</label>
+      <span>Studio mobiliado</span>
+    </div>
+  </div>
+
+  <!-- VALORES -->
+  <div class="valor-grid">
+    <div class="valor-card secundario">
+      <div class="label">Valor de Oferta (sem fator redutor)</div>
+      <div class="valor" id="v-sem">R$ 388.472</div>
+      <div class="sub">23,16 m² × R$ 16.773,42/m²</div>
+    </div>
+    <div class="valor-card destaque">
+      <div class="label">Valor Estimado de Mercado (com redutor 10%)</div>
+      <div class="valor" id="v-com">R$ 349.625</div>
+      <div class="sub">23,16 m² × R$ 15.096,08/m² · fator 0,90</div>
+    </div>
+  </div>
+
+  <!-- ESTATÍSTICA -->
+  <div class="estat-row">
+    <div class="estat-card">
+      <div class="e-label">Amostras</div>
+      <div class="e-value">10</div>
+      <div class="e-unit">comparativos</div>
+    </div>
+    <div class="estat-card">
+      <div class="e-label">Média R$/m²</div>
+      <div class="e-value">R$ 16.773</div>
+      <div class="e-unit">/m² (oferta)</div>
+    </div>
+    <div class="estat-card">
+      <div class="e-label">Mínimo R$/m²</div>
+      <div class="e-value">R$ 11.960</div>
+      <div class="e-unit">/m²</div>
+    </div>
+    <div class="estat-card">
+      <div class="e-label">Máximo R$/m²</div>
+      <div class="e-value">R$ 20.000</div>
+      <div class="e-unit">/m²</div>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="section-title">Valores Anunciados por Amostra (R$)</div>
+      <canvas id="chart-valores"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="section-title">R$/m² por Amostra</div>
+      <canvas id="chart-vm2"></canvas>
+    </div>
+  </div>
+
+  <!-- TABELA AMOSTRAS -->
+  <div class="table-card">
+    <div class="section-title" style="padding:18px 22px 12px;">Amostras Comparativas — Studios Simples Mobiliados · Eco Smart Ecoville e Similares</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nº</th>
+          <th>Imobiliária</th>
+          <th>Área (m²)</th>
+          <th>Valor Anunciado</th>
+          <th>R$/m²</th>
+          <th>Anúncio</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-amostras"></tbody>
+    </table>
+  </div>
+
+  <!-- METODOLOGIA -->
+  <div class="metod-grid">
+    <div class="metod-card">
+      <div class="section-title">Metodologia</div>
+      <div class="metod-row">
+        <span class="mr-label">Método</span>
+        <span class="mr-value">Comparativo Direto de Dados de Mercado</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Norma</span>
+        <span class="mr-value">ABNT NBR 14653-1 e 14653-2</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Total de amostras</span>
+        <span class="mr-value">10 comparativos validados</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Perfil das amostras</span>
+        <span class="mr-value">Studios simples, mobiliados, sem duplex</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Fator redutor aplicado</span>
+        <span class="mr-value">10% (oferta → transação)</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Data de referência</span>
+        <span class="mr-value">Abril de 2026</span>
+      </div>
+    </div>
+    <div class="metod-card">
+      <div class="section-title">Cálculo do Valor</div>
+      <div class="metod-row">
+        <span class="mr-label">Área privativa</span>
+        <span class="mr-value">23,16 m²</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Média R$/m² (oferta)</span>
+        <span class="mr-value">R$ 16.773,42/m²</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Valor sem fator redutor</span>
+        <span class="mr-value">R$ 388.472</span>
+      </div>
+      <div class="metod-row">
+        <span class="mr-label">Fator redutor (10%)</span>
+        <span class="mr-value">− R$ 38.847</span>
+      </div>
+      <div class="metod-row destaque">
+        <span class="mr-label">Valor estimado de mercado</span>
+        <span class="mr-value">R$ 349.625</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>Izabelly Stephane Mendes Silveira</strong> · Corretora de Imóveis · CRECI-F 55843 · Diferencial Imóveis · Curitiba/PR · Abril de 2026
+</div>
+
+<script>
+const AMOSTRAS = [
+  { n:1,  imob:"Chaves na Mão", area:21.00, valor:340000, vm2:16190.5, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-pr-curitiba-mossungue-21m2-RS340000/id-39189631/" },
+  { n:2,  imob:"Chaves na Mão", area:21.00, valor:330000, vm2:15714.3, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-pr-curitiba-mossungue-21m2-RS330000/id-34076362/" },
+  { n:3,  imob:"Chaves na Mão", area:21.00, valor:380000, vm2:18095.2, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-pr-curitiba-mossungue-RS380000/id-32684418/" },
+  { n:4,  imob:"Chaves na Mão", area:25.00, valor:385000, vm2:15400.0, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-pr-curitiba-mossungue-RS385000/id-35594451/" },
+  { n:5,  imob:"Chaves na Mão", area:21.00, valor:400000, vm2:19047.6, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-com-garagem-pr-curitiba-mossungue-33m2-RS400000/id-21587690/" },
+  { n:6,  imob:"Chaves na Mão", area:21.00, valor:415000, vm2:19761.9, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-com-garagem-pr-curitiba-ecoville-RS415000/id-30516421/" },
+  { n:7,  imob:"Chaves na Mão", area:21.00, valor:420000, vm2:20000.0, link:"https://www.chavesnamao.com.br/imovel/apartamento-a-venda-1-quarto-com-garagem-pr-curitiba-mossungue-32m2-RS420000/id-18188714/" },
+  { n:8,  imob:"SIS3 Imóveis",  area:21.48, valor:320000, vm2:14898.0, link:"https://www.sis3imoveis.com/imovel/studio-em-curitiba-pr-no-bairro-ecoville-mossungue-8469174" },
+  { n:9,  imob:"Chaves na Mão", area:21.00, valor:350000, vm2:16666.7, link:"https://www.chavesnamao.com.br/imovel/kitnet-a-venda-pr-curitiba-mossungue-32m2-RS350000/id-39319931/" },
+  { n:10, imob:"Chaves na Mão", area:25.00, valor:299000, vm2:11960.0, link:"https://www.chavesnamao.com.br/imovel/kitnet-a-venda-pr-curitiba-mossungue-RS299000/id-31572417/" },
+];
+
+const fmtBRL = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
+const fmtBRL2 = v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+// Tabela
+const tbody = document.getElementById('tbody-amostras');
+AMOSTRAS.forEach(a => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${a.n}</td>
+    <td>${a.imob}</td>
+    <td>${a.area.toFixed(2)}</td>
+    <td class="td-valor">${fmtBRL(a.valor)}</td>
+    <td class="td-vm2">${fmtBRL2(a.vm2)}</td>
+    <td><a class="link-anuncio" href="${a.link}" target="_blank">Ver anúncio →</a></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// Gráfico valores
+const ctxV = document.getElementById('chart-valores').getContext('2d');
+new Chart(ctxV, {
+  type: 'bar',
+  data: {
+    labels: AMOSTRAS.map(a => `A${a.n}`),
+    datasets: [{
+      label: 'Valor anunciado',
+      data: AMOSTRAS.map(a => a.valor),
+      backgroundColor: AMOSTRAS.map((a,i) => i===0 ? '#E85A0F' : '#2B2B2B'),
+      borderRadius: 5,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmtBRL(ctx.raw) } } },
+    scales: {
+      y: { ticks: { callback: v => 'R$' + (v/1000).toFixed(0)+'k', font: { size:11 } }, grid: { color:'#F0F0F0' } },
+      x: { grid: { display: false }, ticks: { font:{ size:11 } } }
+    }
+  }
+});
+
+// Gráfico R$/m²
+const mediaVM2 = AMOSTRAS.reduce((s,a)=>s+a.vm2,0)/AMOSTRAS.length;
+const ctxM = document.getElementById('chart-vm2').getContext('2d');
+new Chart(ctxM, {
+  type: 'bar',
+  data: {
+    labels: AMOSTRAS.map(a => `A${a.n}`),
+    datasets: [
+      {
+        label: 'R$/m² amostra',
+        data: AMOSTRAS.map(a => a.vm2),
+        backgroundColor: AMOSTRAS.map(a => a.vm2 > mediaVM2 ? '#E85A0F' : '#2B2B2B'),
+        borderRadius: 5,
+      },
+      {
+        label: 'Média',
+        data: AMOSTRAS.map(() => mediaVM2),
+        type: 'line',
+        borderColor: '#E85A0F',
+        borderDash: [5,3],
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0,
+      }
+    ]
+  },
+  options: {
+    plugins: {
+      legend: { display: true, labels: { font:{size:11}, color:'#555' } },
+      tooltip: { callbacks: { label: ctx => fmtBRL2(ctx.raw) } }
+    },
+    scales: {
+      y: { ticks: { callback: v => 'R$'+(v/1000).toFixed(0)+'k', font:{size:11} }, grid:{color:'#F0F0F0'} },
+      x: { grid:{display:false}, ticks:{font:{size:11}} }
+    }
+  }
+});
+</script>
+</body>
+</html>
